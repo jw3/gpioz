@@ -9,6 +9,7 @@ resolvers += Resolver.bintrayRepo("jw3", "maven")
 
 libraryDependencies ++= {
   Seq(
+    "com.github.jw3" % "pigpio" % "67.0-1.4.1",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0"
   )
 }
