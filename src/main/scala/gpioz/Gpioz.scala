@@ -1,0 +1,3 @@
+package gpioz
+
+object Gpioz {}
