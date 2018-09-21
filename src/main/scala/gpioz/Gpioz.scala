@@ -7,9 +7,10 @@ import scalaz.zio.IO
 
 object Gpioz {
   type GpIO[R] = IO[GpioFailure, R]
+  type GpIORes = GpIO[GpioResult]
 
   type PinReader[O] = UserGpio ⇒ GpIO[O]
-  type PinWriter[I] = (UserGpio, I) ⇒ GpIO[GpioOk]
+  type PinWriter[I] = (UserGpio, I) ⇒ GpIO[GpioResult]
 
   type ConfigGet[O] = PinReader[O]
   type ConfigSet[I] = PinWriter[I]
@@ -23,10 +24,10 @@ object Fakez {
     } yield res
   }
 
-  implicit def fakeWriter(p: UserGpio, l: Level): GpIO[GpioOk] = {
+  implicit def fakeWriter(p: UserGpio, l: Level): GpIO[GpioResult] = {
     for {
       _ ← IO.sync(println("fake writing"))
-      res ← GpioResult.apply(0)
+      res ← IO.now(GpioOk)
     } yield res
   }
 }

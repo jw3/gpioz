@@ -3,14 +3,11 @@ package gpioz.api
 import org.bytedeco.javacpp.pigpio
 import scalaz.zio.IO
 
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
+
+sealed trait GpioFailure extends RuntimeException
 
 sealed trait GpioResult
-sealed trait GpioFailure extends RuntimeException with GpioResult
-
-sealed trait GpioOk extends GpioResult
-case class OK() extends GpioOk
+case object GpioOk extends GpioResult
 
 sealed trait InitResult
 case class Init private[api] (ver: Int) extends InitResult
@@ -38,8 +35,8 @@ case class BadPull() extends GpioFailure
 case class BadLevel() extends GpioFailure
 
 object GpioResult {
-  def apply(code: Int): IO[GpioFailure, GpioOk] = code match {
-    case 0                       => IO.point(OK())
+  def apply(code: Int): IO[GpioFailure, GpioResult] = code match {
+    case 0                       => IO.point(GpioOk)
     case pigpio.PI_BAD_USER_GPIO => throw BadUserGpio()
     case pigpio.PI_BAD_GPIO      => throw BadExGpio()
     case pigpio.PI_BAD_MODE      => throw BadMode()

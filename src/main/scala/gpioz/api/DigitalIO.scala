@@ -10,13 +10,13 @@ import scalaz.zio.IO
 trait DigitalIO {
   def gpioGetMode(gpio: UserGpio)(implicit r: ConfigGet[PinMode]): GpIO[PinMode] = r(gpio)
 
-  def gpioSetMode(gpio: UserGpio, mode: PinMode)(implicit w: ConfigSet[PinMode]): GpIO[GpioOk] = w(gpio, mode)
+  def gpioSetMode(gpio: UserGpio, mode: PinMode)(implicit w: ConfigSet[PinMode]): GpIO[GpioResult] = w(gpio, mode)
 
   def gpioRead(gpio: UserGpio)(implicit r: PinReader[Level]): GpIO[Level] = r(gpio)
 
-  def gpioWrite(gpio: UserGpio, level: Level)(implicit w: PinWriter[Level]): GpIO[GpioOk] = w(gpio, level)
+  def gpioWrite(gpio: UserGpio, level: Level)(implicit w: PinWriter[Level]): GpIORes = w(gpio, level)
 
-  def gpioSetPullUpDown(gpio: UserGpio, pull: GpioPull)(implicit w: ConfigSet[GpioPull]): GpIO[GpioOk] = w(gpio, pull)
+  def gpioSetPullUpDown(gpio: UserGpio, pull: GpioPull)(implicit w: ConfigSet[GpioPull]): GpIORes = w(gpio, pull)
 }
 
 object DefaultDigitalIO extends DefaultDigitalIO
