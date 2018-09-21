@@ -1,25 +1,26 @@
 package gpioz.api
 
 import org.bytedeco.javacpp.pigpio
+import scalaz.zio.IO
 
 sealed trait PinMode {
   def value: Int
 }
 
-case object ClearPin extends PinMode { val value = pigpio.PI_CLEAR }
-case object InputPin extends PinMode { val value = pigpio.PI_INPUT }
-case object OutputPin extends PinMode { val value = pigpio.PI_OUTPUT }
+case object ClearPin extends PinMode { val value: Int = pigpio.PI_CLEAR }
+case object InputPin extends PinMode { val value: Int = pigpio.PI_INPUT }
+case object OutputPin extends PinMode { val value: Int = pigpio.PI_OUTPUT }
 case object QueryPinMode
 
 object PinMode {
-  def apply(value: Int) = value match {
-    case pigpio.PI_INPUT  => InputPin
-    case pigpio.PI_OUTPUT => OutputPin
+  def apply(value: Int): IO[GpioFailure, PinMode] = value match {
+    case pigpio.PI_INPUT  => IO.now(InputPin)
+    case pigpio.PI_OUTPUT => IO.now(OutputPin)
     case _                => throw BadMode()
   }
 }
 
 object PinModes {
-  val input = InputPin
-  val output = OutputPin
+  val input: PinMode = InputPin
+  val output: PinMode = OutputPin
 }

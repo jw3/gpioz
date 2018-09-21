@@ -67,9 +67,9 @@ sealed trait GpioAlert {
 object GpioAlert {
   def apply(user_gpio: Int, gpio_level: Int, microtick: Int /*UINT32*/ ) = {
     new GpioAlert {
-      lazy val gpio = UserGpio(user_gpio)
-      lazy val level = Level(gpio_level)
-      lazy val tick = Integer.toUnsignedLong(microtick)
+      lazy val gpio: UserGpio = UserGpio(user_gpio)
+      lazy val level: Level = Level.unsafeOf(gpio_level)
+      lazy val tick: Long = Integer.toUnsignedLong(microtick)
     }
   }
   def unapply(arg: GpioAlert): Option[(UserGpio, Level, Long)] =
