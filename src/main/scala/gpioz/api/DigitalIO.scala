@@ -1,44 +1,39 @@
 package gpioz.api
 
+import gpioz.Gpioz._
 import org.bytedeco.javacpp.pigpio
-
-import scala.util.control.NonFatal
-import scala.util.{Failure, Success, Try}
+import scalaz.zio.IO
 
 /**
- *
- */
+  *
+  */
 trait DigitalIO {
-  def gpioGetMode(gpio: Gpio): Try[PinMode]
-  def gpioSetMode(gpio: Gpio, mode: PinMode): Try[GpioResult]
+  def gpioGetMode(gpio: UserGpio)(implicit r: ConfigGet[PinMode]): GpIO[PinMode] = r(gpio)
 
-  def gpioRead(gpio: Gpio): Try[Level]
-  def gpioWrite(gpio: Gpio, level: Level): Try[GpioResult]
+  def gpioSetMode(gpio: UserGpio, mode: PinMode)(implicit w: ConfigSet[PinMode]): GpIO[GpioOk] = w(gpio, mode)
 
-  def gpioSetPullUpDown(gpio: Gpio, pud: GpioPull): Try[GpioResult]
+  def gpioRead(gpio: UserGpio)(implicit r: PinReader[Level]): GpIO[Level] = r(gpio)
+
+  def gpioWrite(gpio: UserGpio, level: Level)(implicit w: PinWriter[Level]): GpIO[GpioOk] = w(gpio, level)
+
+  def gpioSetPullUpDown(gpio: UserGpio, pull: GpioPull)(implicit w: ConfigSet[GpioPull]): GpIO[GpioOk] = w(gpio, pull)
 }
 
 object DefaultDigitalIO extends DefaultDigitalIO
 
 trait DefaultDigitalIO extends DigitalIO {
-  def gpioGetMode(gpio: Gpio): Try[PinMode] = {
-    try Success(PinMode(pigpio.gpioGetMode(gpio.value)))
-    catch {
-      case NonFatal(e) => Failure(e)
-    }
-  }
-  def gpioSetMode(gpio: Gpio, mode: PinMode): Try[GpioResult] =
-    GpioResultOf(pigpio.gpioSetMode(gpio.value, mode.value))
+  implicit def gpioModeReader: ConfigGet[PinMode] =
+    (p: UserGpio) ⇒ IO.sync(pigpio.gpioGetMode(p.value)).map(PinMode(_))
 
-  def gpioSetPullUpDown(gpio: Gpio, pud: GpioPull): Try[GpioResult] =
-    GpioResultOf(pigpio.gpioSetPullUpDown(gpio.value, pud.value))
+  implicit def gpioModeSetter: ConfigSet[PinMode] =
+    (p: UserGpio, m: PinMode) ⇒ IO.sync(pigpio.gpioSetMode(p.value, m.value)).flatMap(GpioResult(_))
 
-  def gpioRead(gpio: Gpio): Try[Level] = {
-    try Success(Level(pigpio.gpioRead(gpio.value)))
-    catch {
-      case NonFatal(e) => Failure(e)
-    }
-  }
-  def gpioWrite(gpio: Gpio, level: Level): Try[GpioResult] =
-    GpioResultOf(pigpio.gpioWrite(gpio.value, level.value))
+  implicit def gpioReader: PinReader[Level] =
+    (p: UserGpio) ⇒ IO.sync(pigpio.gpioRead(p.value)).map(Level(_))
+
+  implicit def gpioWriter: PinWriter[Level] =
+    (p: UserGpio, l: Level) ⇒ IO.sync(pigpio.gpioWrite(p.value, l.value)).flatMap(GpioResult(_))
+
+  implicit def gpioPullUpDown: ConfigSet[GpioPull] =
+    (p: UserGpio, pull: GpioPull) ⇒ IO.sync(pigpio.gpioWrite(p.value, pull.value)).flatMap(GpioResult(_))
 }

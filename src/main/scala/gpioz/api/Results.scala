@@ -1,6 +1,7 @@
 package gpioz.api
 
 import org.bytedeco.javacpp.pigpio
+import scalaz.zio.IO
 
 import scala.util.control.NonFatal
 import scala.util.{Failure, Success, Try}
@@ -37,21 +38,12 @@ case class BadPull() extends GpioFailure
 case class BadLevel() extends GpioFailure
 
 object GpioResult {
-  def apply(code: Int): GpioResult = code match {
-    case 0                       => OK()
+  def apply(code: Int): IO[GpioFailure, GpioOk] = code match {
+    case 0                       => IO.point(OK())
     case pigpio.PI_BAD_USER_GPIO => throw BadUserGpio()
     case pigpio.PI_BAD_GPIO      => throw BadExGpio()
     case pigpio.PI_BAD_MODE      => throw BadMode()
     case pigpio.PI_BAD_PUD       => throw BadPull()
     case _                       => throw UnknownFailure()
-  }
-}
-
-object GpioResultOf {
-  def apply(f: => Int): Try[GpioResult] = {
-    try Success(GpioResult(f))
-    catch {
-      case NonFatal(e) => Failure(e)
-    }
   }
 }
