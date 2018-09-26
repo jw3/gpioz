@@ -1,5 +1,6 @@
 package gpioz.api
 
+import gpioz.Gpioz.{GpInitRes, GpioInitializer}
 import org.bytedeco.javacpp.pigpio
 import scalaz.zio.IO
 
@@ -12,19 +13,21 @@ trait Initializer {
     * Initialises the library.  Call before using the other library functions.
     * Returns the pigpio version number if OK, otherwise PI_INIT_FAILED.
     */
-  def gpioInitialise(): IO[InitFailure, Int]
+  def gpioInitialise()(implicit i: GpioInitializer): GpInitRes = i()
 
   /**
     * Terminates the library.  Call before program exit.
     * Resets the used DMA channels, releases memory, and terminates any running threads.
     */
-  def gpioTerminate(): IO[Nothing, Unit]
+  //def gpioTerminate(): IO[Nothing, Unit]
 }
 
-object DefaultInitializer extends Initializer {
-  def gpioInitialise(): IO[InitFailure, Int] =
-    IO.sync(pigpio.gpioInitialise()).flatMap(InitResult(_))
+object DefaultInitializer extends DefaultInitializer
 
-  def gpioTerminate(): IO[Nothing, Unit] =
+trait DefaultInitializer extends Initializer {
+  implicit def gpioInitialiser: GpioInitializer =
+    () ⇒ IO.sync(pigpio.gpioInitialise()).flatMap(InitResult(_))
+
+  implicit def gpioTerminate(): IO[Nothing, Unit] =
     IO.sync(pigpio.gpioTerminate())
 }

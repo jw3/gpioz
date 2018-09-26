@@ -11,13 +11,13 @@ case object GpioOk extends GpioResult
 sealed trait InitResult
 case class Init private[api] (ver: Int) extends InitResult
 
-sealed trait InitFailure
-case object InitFailed extends RuntimeException with InitFailure
+sealed trait InitFailure extends GpioFailure
+case object InitFailed extends InitFailure
 
 object InitResult {
-  def apply(code: Int): IO[InitFailure, Int] = code match {
+  def apply(code: Int): IO[InitFailure, InitResult] = code match {
     case pigpio.PI_INIT_FAILED => throw InitFailed
-    case ver: Int              => IO.now(ver)
+    case ver: Int              => IO.now(Init(ver))
   }
 }
 
