@@ -8,10 +8,13 @@ scalaVersion := "2.12.6"
 resolvers += Resolver.bintrayRepo("jw3", "maven")
 
 libraryDependencies ++= {
+  lazy val scalatestVersion = "3.0.3"
+
   Seq(
     "com.github.jw3" % "pigpio" % "67.0-1.4.1",
     "com.typesafe.scala-logging" %% "scala-logging" % "3.5.0",
     "org.scalaz" %% "scalaz-zio" % "0.2.7",
-    "org.scalaz" %% "testz-stdlib" % "0.0.5" % Test
+    "org.scalactic" %% "scalactic" % scalatestVersion % Test,
+    "org.scalatest" %% "scalatest" % scalatestVersion % Test,
   )
 }
