@@ -17,8 +17,9 @@ lazy val examples =
     .in(file("examples"))
     .dependsOn(core)
     .settings(commonSettings: _*)
+    .settings(dockerSettings: _*)
     .settings(name := "gpioz-examples")
-    .enablePlugins(GitVersioning)
+    .enablePlugins(GitVersioning, JavaServerAppPackaging, DockerPlugin)
 
 lazy val commonSettings = Seq(
   organization := "com.github.jw3",
@@ -37,4 +38,9 @@ lazy val commonSettings = Seq(
       "org.scalatest" %% "scalatest" % scalatestVersion % Test,
     )
   }
+)
+
+lazy val dockerSettings = Seq(
+  dockerBaseImage := sys.env.getOrElse("BASE_IMAGE", "openjdk:8"),
+  dockerUpdateLatest := true
 )
