@@ -14,9 +14,9 @@ case object QueryPinMode
 
 object PinMode {
   def apply(value: Int): IO[GpioFailure, PinMode] = value match {
-    case pigpio.PI_INPUT  => IO.now(InputPin)
-    case pigpio.PI_OUTPUT => IO.now(OutputPin)
-    case _                => throw BadMode()
+    case pigpio.PI_INPUT ⇒ IO.now(InputPin)
+    case pigpio.PI_OUTPUT ⇒ IO.now(OutputPin)
+    case _ ⇒ throw BadMode()
   }
 }
 

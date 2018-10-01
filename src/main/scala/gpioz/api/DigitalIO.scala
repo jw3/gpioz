@@ -12,7 +12,8 @@ trait DigitalIO {
 
   def gpioSetMode(gpio: UserGpio, mode: PinMode)(implicit w: ConfigSet[PinMode]): GpIORes = w(gpio, mode)
 
-  def gpioRead(gpio: UserGpio)(implicit r: PinReader[Level]): GpIO[Level] = r(gpio)
+  def gpioRead(gpio: UserGpio)(implicit r: PinReader[Level]): GpIO[Level] =
+    r(gpio)
 
   def gpioWrite(gpio: UserGpio, level: Level)(implicit w: PinWriter[Level]): GpIORes = w(gpio, level)
 

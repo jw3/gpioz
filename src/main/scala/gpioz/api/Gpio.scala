@@ -66,13 +66,12 @@ sealed trait GpioAlert {
 }
 
 object GpioAlert {
-  def apply(user_gpio: Int, gpio_level: Int, microtick: Int /*UINT32*/ ) = {
+  def apply(user_gpio: Int, gpio_level: Int, microtick: Int /*UINT32*/ ) =
     new GpioAlert {
       lazy val gpio: UserGpio = UserGpio(user_gpio)
       lazy val level: Level = Level.unsafeOf(gpio_level)
       lazy val tick: Long = Integer.toUnsignedLong(microtick)
     }
-  }
   def unapply(arg: GpioAlert): Option[(UserGpio, Level, Long)] =
     Option((arg.gpio, arg.level, arg.tick))
 }
@@ -84,7 +83,6 @@ object GpioAlertFunc {
 
 // todo;; determine if this (unsafeRun with RTS) is correct
 class GpioAlertFunc(queue: Queue[GpioAlert]) extends gpioAlertFunc_t with scalaz.zio.RTS {
-  def callback(gpio: Int, level: Int, tick: Int /*UINT32*/ ): Unit = {
+  def callback(gpio: Int, level: Int, tick: Int /*UINT32*/ ): Unit =
     unsafeRun(queue.offer(GpioAlert(gpio, level, tick)))
-  }
 }

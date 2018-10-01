@@ -13,9 +13,9 @@ case object DontPull extends GpioPull { val value: Int = pigpio.PI_PUD_OFF }
 
 object GpioPull {
   def apply(value: Int): IO[GpioFailure, GpioPull] = value match {
-    case pigpio.PI_PUD_UP   => IO.now(PullUp)
-    case pigpio.PI_PUD_DOWN => IO.now(PullDown)
-    case pigpio.PI_PUD_OFF  => IO.now(DontPull)
-    case _                  => throw BadPull()
+    case pigpio.PI_PUD_UP ⇒ IO.now(PullUp)
+    case pigpio.PI_PUD_DOWN ⇒ IO.now(PullDown)
+    case pigpio.PI_PUD_OFF ⇒ IO.now(DontPull)
+    case _ ⇒ throw BadPull()
   }
 }
