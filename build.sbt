@@ -37,7 +37,18 @@ lazy val commonSettings = Seq(
       "org.scalactic" %% "scalactic" % scalatestVersion % Test,
       "org.scalatest" %% "scalatest" % scalatestVersion % Test,
     )
-  }
+  },
+  scalacOptions ++= Seq(
+    "-encoding",
+    "UTF-8",
+    "-feature",
+    "-unchecked",
+    "-deprecation",
+    "-language:postfixOps",
+    "-language:implicitConversions",
+    "-Xfatal-warnings",
+    "-Xlint:_"
+  )
 )
 
 lazy val dockerSettings = Seq(
