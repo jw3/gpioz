@@ -1,12 +1,12 @@
 package gpioz
 
-import gpioz.Gpioz.{GpIO, GpInitRes}
+import gpioz.Gpioz.{GpIO, GpioInitializer}
 import gpioz.api._
 import org.scalatest.{Matchers, WordSpec}
 import zio.IO
 
 object Fakez {
-  implicit def fakeInitz(): GpInitRes = InitResult(100)
+  implicit def fakeInitz(): GpioInitializer = InitResult(100)
 
   implicit def fakeReader(p: UserGpio): GpIO[Level] = IO.succeed(High)
 
@@ -14,7 +14,7 @@ object Fakez {
 }
 
 class GpiozSpec extends WordSpec with Matchers with Initializer with DigitalIO {
-  val rt = zio.Runtime.default
+  val rt: zio.Runtime[zio.ZEnv] = zio.Runtime.default
 
   import Fakez._
 
@@ -22,7 +22,7 @@ class GpiozSpec extends WordSpec with Matchers with Initializer with DigitalIO {
     "init" in {
       rt.unsafeRun(
         for {
-          res ← gpioInitialise()(Fakez.fakeInitz)
+          res ← gpioInitialise()(Fakez.fakeInitz())
         } yield res shouldBe Init(100)
       )
     }

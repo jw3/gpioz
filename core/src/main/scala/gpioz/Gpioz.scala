@@ -8,7 +8,7 @@ object Gpioz {
   type GpIORes = GpIO[GpioResult]
   type GpInitRes = GpIO[InitResult]
 
-  type GpioInitializer = () ⇒ GpInitRes
+  type GpioInitializer = IO[InitFailure, InitResult]
   type PinReader[O] = UserGpio ⇒ GpIO[O]
   type PinWriter[I] = (UserGpio, I) ⇒ GpIORes
 

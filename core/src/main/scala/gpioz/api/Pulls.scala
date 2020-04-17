@@ -16,6 +16,6 @@ object GpioPull {
     case pigpio.PI_PUD_UP   => IO.succeed(PullUp)
     case pigpio.PI_PUD_DOWN => IO.succeed(PullDown)
     case pigpio.PI_PUD_OFF  => IO.succeed(DontPull)
-    case _                  => throw BadPull()
+    case _                  => IO.fail(BadPull())
   }
 }
