@@ -37,6 +37,7 @@ sealed trait Gpio {
 }
 
 case class UserGpio private[api] (value: Int) extends Gpio
+
 case class ExtGpio private[api] (value: Int) extends Gpio
 
 object Gpio {
@@ -61,7 +62,9 @@ object GpioImplicits {
 
 sealed trait GpioAlert {
   def gpio: UserGpio
+
   def level: Level
+
   def tick: Long
 }
 
@@ -72,6 +75,7 @@ object GpioAlert {
       lazy val level: Level = Level.unsafeOf(gpio_level)
       lazy val tick: Long = Integer.toUnsignedLong(microtick)
     }
+
   def unapply(arg: GpioAlert): Option[(UserGpio, Level, Long)] =
     Option((arg.gpio, arg.level, arg.tick))
 }
@@ -81,7 +85,7 @@ object GpioAlertFunc {
   val clear: gpioAlertFunc_t = null
 }
 
-class GpioAlertFunc(queue: Queue[GpioAlert]) extends gpioAlertFunc_t  {
+class GpioAlertFunc(queue: Queue[GpioAlert]) extends gpioAlertFunc_t {
   def callback(gpio: Int, level: Int, tick: Int /*UINT32*/ ): Unit =
     zio.Runtime.default.unsafeRun(queue.offer(GpioAlert(gpio, level, tick)))
 }

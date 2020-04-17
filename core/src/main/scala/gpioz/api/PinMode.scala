@@ -8,15 +8,18 @@ sealed trait PinMode {
 }
 
 case object ClearPin extends PinMode { val value: Int = pigpio.PI_CLEAR }
+
 case object InputPin extends PinMode { val value: Int = pigpio.PI_INPUT }
+
 case object OutputPin extends PinMode { val value: Int = pigpio.PI_OUTPUT }
+
 case object QueryPinMode
 
 object PinMode {
   def apply(value: Int): IO[GpioFailure, PinMode] = value match {
-    case pigpio.PI_INPUT ⇒ IO.succeed(InputPin)
-    case pigpio.PI_OUTPUT ⇒ IO.succeed(OutputPin)
-    case _ ⇒ throw BadMode()
+    case pigpio.PI_INPUT  => IO.succeed(InputPin)
+    case pigpio.PI_OUTPUT => IO.succeed(OutputPin)
+    case _                => throw BadMode()
   }
 }
 

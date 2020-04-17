@@ -5,7 +5,7 @@ import org.bytedeco.javacpp.pigpio
 import zio.{IO, Queue, Schedule}
 
 object AlertActor {
-  type Behavior = GpioAlert ⇒ IO[Nothing, Unit]
+  type Behavior = GpioAlert => IO[Nothing, Unit]
 
   def make(p: UserGpio, b: Behavior): IO[Nothing, Unit] = {
     for {

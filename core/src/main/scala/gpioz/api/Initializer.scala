@@ -26,7 +26,7 @@ object DefaultInitializer extends DefaultInitializer
 
 trait DefaultInitializer extends Initializer {
   implicit def gpioInitialiser: GpioInitializer =
-    () ⇒ IO.succeed(pigpio.gpioInitialise()).flatMap(InitResult(_))
+    () => IO.succeed(pigpio.gpioInitialise()).flatMap(InitResult(_))
 
   implicit def gpioTerminate(): IO[Nothing, Unit] =
     IO.succeed(pigpio.gpioTerminate())
