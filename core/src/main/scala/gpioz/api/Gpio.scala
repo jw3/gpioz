@@ -2,7 +2,7 @@ package gpioz.api
 
 import org.bytedeco.javacpp.pigpio
 import org.bytedeco.javacpp.pigpio.gpioAlertFunc_t
-import scalaz.zio.{Queue, RTS}
+import zio.Queue
 
 /**
   * GPIO
@@ -81,8 +81,7 @@ object GpioAlertFunc {
   val clear: gpioAlertFunc_t = null
 }
 
-// todo;; determine if this (unsafeRun with RTS) is correct
-class GpioAlertFunc(queue: Queue[GpioAlert]) extends gpioAlertFunc_t with scalaz.zio.RTS {
+class GpioAlertFunc(queue: Queue[GpioAlert]) extends gpioAlertFunc_t  {
   def callback(gpio: Int, level: Int, tick: Int /*UINT32*/ ): Unit =
-    unsafeRun(queue.offer(GpioAlert(gpio, level, tick)))
+    zio.Runtime.default.unsafeRun(queue.offer(GpioAlert(gpio, level, tick)))
 }

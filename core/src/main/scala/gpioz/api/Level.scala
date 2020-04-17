@@ -1,6 +1,7 @@
 package gpioz.api
 
-import scalaz.zio.IO
+import zio.IO
+
 
 sealed trait Level {
   def value: Int
@@ -11,7 +12,7 @@ case object High extends Level { val value: Int = 1 }
 case object Low extends Level { val value: Int = 0 }
 
 object Level {
-  def apply(v: Int): IO[GpioFailure, Level] = IO.now(Level.unsafeOf(v))
+  def apply(v: Int): IO[GpioFailure, Level] = IO.succeed(Level.unsafeOf(v))
   def apply(v: Boolean): Level = if (v) High else Low
 
   def unsafeOf(v: Int): Level = v match {

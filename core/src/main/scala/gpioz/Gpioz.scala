@@ -1,7 +1,7 @@
 package gpioz
 
 import gpioz.api.{GpioResult, _}
-import scalaz.zio.IO
+import zio.IO
 
 object Gpioz {
   type GpIO[R] = IO[GpioFailure, R]

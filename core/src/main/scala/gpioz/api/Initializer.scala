@@ -2,7 +2,7 @@ package gpioz.api
 
 import gpioz.Gpioz.{GpInitRes, GpioInitializer}
 import org.bytedeco.javacpp.pigpio
-import scalaz.zio.IO
+import zio.IO
 
 /**
   *
@@ -26,8 +26,8 @@ object DefaultInitializer extends DefaultInitializer
 
 trait DefaultInitializer extends Initializer {
   implicit def gpioInitialiser: GpioInitializer =
-    () ⇒ IO.sync(pigpio.gpioInitialise()).flatMap(InitResult(_))
+    () ⇒ IO.succeed(pigpio.gpioInitialise()).flatMap(InitResult(_))
 
   implicit def gpioTerminate(): IO[Nothing, Unit] =
-    IO.sync(pigpio.gpioTerminate())
+    IO.succeed(pigpio.gpioTerminate())
 }

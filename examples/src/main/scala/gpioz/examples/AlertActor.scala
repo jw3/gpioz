@@ -2,7 +2,7 @@ package gpioz.examples
 
 import gpioz.api.{GpioAlert, GpioAlertFunc, UserGpio}
 import org.bytedeco.javacpp.pigpio
-import scalaz.zio._
+import zio.{IO, Queue, Schedule}
 
 object AlertActor {
   type Behavior = GpioAlert ⇒ IO[Nothing, Unit]
@@ -20,11 +20,11 @@ object AlertActor {
 object main extends App {
   def printer(a: GpioAlert): IO[Nothing, Unit] =
     for {
-      _ ← IO.sync { println(s"alert ${a.tick}") }
+      _ ← IO.succeed {println(s"alert ${a.tick}")}
     } yield ()
 
-  def run(args: List[String]): IO[Nothing, ExitStatus] =
+  def run(args: List[String]): IO[Nothing, Int] =
     for {
       a ← AlertActor.make(UserGpio(4), printer)
-    } yield ExitStatus.ExitNow(0)
+    } yield 0
 }
