@@ -1,9 +1,5 @@
 package gpioz.api
 
-import org.bytedeco.javacpp.pigpio
-import org.bytedeco.javacpp.pigpio.gpioAlertFunc_t
-import zio.Queue
-
 /**
   * GPIO
   *
@@ -32,60 +28,10 @@ import zio.Queue
   * Type 3    X  X  X  X  X  X  X  X  X  X  X  X  -  -  -  -
   *
   */
-sealed trait Gpio {
-  def value: Int
-}
 
-case class UserGpio private[api] (value: Int) extends Gpio
 
-case class ExtGpio private[api] (value: Int) extends Gpio
 
-object Gpio {
-  val userPins = Range(0, pigpio.PI_MAX_USER_GPIO)
-  val extPins = Range(0, pigpio.PI_MAX_GPIO)
 
-  // default behavior of Gpio is user-gpios
-  def apply(num: Int): UserGpio = {
-    require(userPins.contains(num), "out of range")
-    UserGpio(num)
-  }
 
-  def ext(num: Int): ExtGpio = {
-    require(extPins.contains(num), "out of range")
-    ExtGpio(num)
-  }
-}
 
-object GpioImplicits {
-  implicit def int2gpio(int: Int): UserGpio = Gpio(int)
-}
 
-sealed trait GpioAlert {
-  def gpio: UserGpio
-
-  def level: Level
-
-  def tick: Long
-}
-
-object GpioAlert {
-  def apply(user_gpio: Int, gpio_level: Int, microtick: Int /*UINT32*/ ) =
-    new GpioAlert {
-      lazy val gpio: UserGpio = UserGpio(user_gpio)
-      lazy val level: Level = Level.unsafeOf(gpio_level)
-      lazy val tick: Long = Integer.toUnsignedLong(microtick)
-    }
-
-  def unapply(arg: GpioAlert): Option[(UserGpio, Level, Long)] =
-    Option((arg.gpio, arg.level, arg.tick))
-}
-
-object GpioAlertFunc {
-  // pigpio-docs: The alert may be cancelled by passing NULL as the function.
-  val clear: gpioAlertFunc_t = null
-}
-
-class GpioAlertFunc(queue: Queue[GpioAlert]) extends gpioAlertFunc_t {
-  def callback(gpio: Int, level: Int, tick: Int /*UINT32*/ ): Unit =
-    zio.Runtime.default.unsafeRun(queue.offer(GpioAlert(gpio, level, tick)))
-}

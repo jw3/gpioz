@@ -1,7 +1,6 @@
 package gpioz.api
 
 import org.bytedeco.javacpp.pigpio
-import zio.IO
 
 sealed trait PinMode {
   def value: Int
@@ -13,10 +12,10 @@ case object OutputPin extends PinMode { val value: Int = pigpio.PI_OUTPUT }
 case object QueryPinMode
 
 object PinMode {
-  def apply(value: Int): IO[GpioFailure, PinMode] = value match {
-    case pigpio.PI_INPUT  => IO.succeed(InputPin)
-    case pigpio.PI_OUTPUT => IO.succeed(OutputPin)
-    case _                => IO.fail(BadMode())
+  def apply(value: Int): PinMode = value match {
+    case pigpio.PI_INPUT  => InputPin
+    case pigpio.PI_OUTPUT => OutputPin
+    case _                => throw BadMode()
   }
 }
 

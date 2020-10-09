@@ -1,30 +1,23 @@
 package gpioz.examples
 
-import gpioz.api.{GpioAlert, GpioAlertFunc, UserGpio}
-import org.bytedeco.javacpp.pigpio
-import zio.{IO, Queue, Schedule}
+import gpioz.alerts.{Alerts, GpioAlert}
+import gpioz.api2.UserGpio
+import gpioz.pi.Pi
+import zio._
 
-object AlertActor {
-  type Behavior = GpioAlert => IO[Nothing, Unit]
 
-  def make(p: UserGpio, b: Behavior): IO[Nothing, Unit] = {
-    for {
-      q ← Queue.unbounded[GpioAlert]
-      f = new GpioAlertFunc(q)
-      _ = pigpio.gpioSetAlertFunc(p.value, f)
-      _ ← q.take.flatMap(b).repeat(Schedule.forever)
+object main extends scala.App {
+  val deps = Pi.make() >+> Alerts.live() >+> clock.Clock.live
+
+  val app = for {
+    q <- Queue.unbounded[GpioAlert]
+    _ <- Alerts.watch(UserGpio(4), q)
+    h = for {
+      a <- q.take
+      _ <- IO.succeed {println(s"alert ${a.tick}")}
     } yield ()
-  }
-}
+    _ <- h.repeat(Schedule.forever)
+  } yield ()
 
-object main extends App {
-  def printer(a: GpioAlert): IO[Nothing, Unit] =
-    for {
-      _ ← IO.succeed {println(s"alert ${a.tick}")}
-    } yield ()
-
-  def run(args: List[String]): IO[Nothing, Int] =
-    for {
-      a ← AlertActor.make(UserGpio(4), printer)
-    } yield 0
+  Runtime.unsafeFromLayer(deps).unsafeRun(app)
 }

@@ -3,7 +3,7 @@ package gpioz.api
 import org.bytedeco.javacpp.pigpio
 import zio.IO
 
-sealed trait GpioFailure extends RuntimeException
+sealed class GpioFailure extends RuntimeException
 sealed trait InitFailure extends GpioFailure
 case object InitFailed extends InitFailure
 
@@ -33,12 +33,12 @@ case class BadLevel() extends GpioFailure
 case class UnknownFailure() extends GpioFailure
 
 object GpioResult {
-  def apply(code: Int): IO[GpioFailure, GpioResult] = code match {
-    case 0                       => IO.succeed(GpioOk)
-    case pigpio.PI_BAD_USER_GPIO => IO.fail(BadUserGpio())
-    case pigpio.PI_BAD_GPIO      => IO.fail(BadExGpio())
-    case pigpio.PI_BAD_MODE      => IO.fail(BadMode())
-    case pigpio.PI_BAD_PUD       => IO.fail(BadPull())
-    case _                       => IO.fail(UnknownFailure())
+  def apply(code: Int): Either[GpioFailure, GpioResult] = code match {
+    case 0                       => Right(GpioOk)
+    case pigpio.PI_BAD_USER_GPIO => Left(BadUserGpio())
+    case pigpio.PI_BAD_GPIO      => Left(BadExGpio())
+    case pigpio.PI_BAD_MODE      => Left(BadMode())
+    case pigpio.PI_BAD_PUD       => Left(BadPull())
+    case _                       => Left(UnknownFailure())
   }
 }
